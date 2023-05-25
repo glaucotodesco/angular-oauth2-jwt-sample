@@ -11,30 +11,24 @@ import { TokenService } from 'src/app/services/token.service';
 })
 export class AuthorizedComponent implements OnInit {
 
-  code: string = '';
-  token: string = '';
-
   constructor(private activatedRoute: ActivatedRoute,   private authService: AuthService, private tokenService: TokenService){}
   
   
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe( data => {
-      this.code = data['code'];
-      this.getToken();
+      this.getToken(data['code']);
     })
   }
 
 
-  getToken(): void {
-    this.authService.getToken(this.code).subscribe(
+  getToken(code: string): void {
+    this.authService.getToken(code).subscribe(
       {
         next: data => {
           this.tokenService.setTokens(data.access_token, data.refresh_token);
-          this.token = data;
         }, 
         error: error => console.log(error)
       }
-      
     );
   }
 

@@ -11,6 +11,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ResourceInterceptor } from './interceptors/resources.interceptor';
 import { UserComponent } from './components/user/user.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -19,13 +20,14 @@ import { AdminComponent } from './components/admin/admin.component';
     MenuComponent,
     AuthorizedComponent,
     UserComponent,
-    AdminComponent
+    AdminComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: ResourceInterceptor, multi: true}],
   bootstrap: [AppComponent]
