@@ -6,6 +6,8 @@ import { TokenService } from './token.service';
 import * as CryptoJS from 'crypto-js';
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const CODE_VERIFIER = 'code_verifier';
+const ACCESS_TOKEN = 'access_token';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,6 @@ export class AuthService {
     response_type: environment.response_type,
     response_mode: environment.response_mode,
     code_challenge_method: environment.code_challenge_method,
-    code_challenge: environment.code_challenge,
   }
 
   constructor(private http: HttpClient, private tokenService: TokenService) { }
@@ -52,7 +53,7 @@ export class AuthService {
 
   getAuthCode(): void {
     const code_verifier = this.generateCodeVerifier();
-    this.tokenService.setVerifier(code_verifier);
+    this.setVerifier(code_verifier);
     this.params.code_challenge = this.generateCodeChallenge(code_verifier);
     const httpParams = new HttpParams({ fromObject: this.params });
     const codeUrl = this.authorize_uri + httpParams.toString();
@@ -81,6 +82,43 @@ export class AuthService {
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
     return code_challenge;
+  }
+
+  isLogged(): boolean {
+    return localStorage.getItem(ACCESS_TOKEN) != null;
+  }
+
+  isAdmin(): boolean {
+    if(!this.isLogged()) {
+      return false;
+    }
+    const token = this.tokenService.getAccessToken();
+    const payload = token?.split(".")[1] || "";
+    const payloadDecoded = atob(payload);
+    const values = JSON.parse(payloadDecoded);
+    const roles = values.roles;
+    if (roles.indexOf('ROLE_ADMIN') < 0) {
+      return false;
+    }
+    return true;
+  }
+
+  setVerifier(code_verifier: string): void {
+    if(localStorage.getItem(CODE_VERIFIER)) {
+      this.deleteVerifier();
+    }
+    const encrypted = CryptoJS.AES.encrypt(code_verifier, environment.secret_pkce);
+    localStorage.setItem(CODE_VERIFIER, encrypted.toString());
+  }
+
+  getVerifier(): string {
+    const encrypted = localStorage.getItem(CODE_VERIFIER) || "";
+    const decrypted = CryptoJS.AES.decrypt(encrypted, environment.secret_pkce).toString(CryptoJS.enc.Utf8);
+    return decrypted;
+  }
+  
+  deleteVerifier(): void {
+    localStorage.removeItem(CODE_VERIFIER);
   }
 
 }

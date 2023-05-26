@@ -16,8 +16,8 @@ export class AuthorizedComponent implements OnInit {
   
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe( data => {
-      const code_verifier = this.tokenService.getVerifier();
-      this.tokenService.deleteVerifier();
+      const code_verifier = this.authService.getVerifier();
+      this.authService.deleteVerifier();
       this.getToken(data['code'], code_verifier);
     })
   }
