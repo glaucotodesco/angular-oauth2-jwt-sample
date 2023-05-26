@@ -6,25 +6,22 @@ import { TokenService } from 'src/app/services/token.service';
 
 @Component({
   selector: 'app-authorized',
-  templateUrl: './authorized.component.html',
-  styleUrls: ['./authorized.component.css']
+  template: '',
+  styleUrls: []
 })
 export class AuthorizedComponent implements OnInit {
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router,  private authService: AuthService, private tokenService: TokenService){}
   
-  
   ngOnInit(): void {
+    //Get Auth Code From AuthServer
     this.activatedRoute.queryParams.subscribe( data => {
-      const code_verifier = this.authService.getVerifier();
-      this.authService.deleteVerifier();
-      this.getToken(data['code'], code_verifier);
+      this.getToken(data['code']);
     })
   }
 
-
-  getToken(code: string, code_verifier: string): void {
-    this.authService.getToken(code, code_verifier).subscribe(
+  getToken(code: string): void {
+    this.authService.getToken(code).subscribe(
       {
         next: data => {
           this.tokenService.setTokens(data.access_token, data.refresh_token);
