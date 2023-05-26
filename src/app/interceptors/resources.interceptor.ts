@@ -17,10 +17,13 @@ export class ResourceInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     let intReq = request;
+    
     const token = this.tokenService.getAccessToken();
+
     if(token != null && request.url.includes('resources')) {
       intReq = request.clone({headers: request.headers.set('Authorization', 'Bearer ' + token)});
     }
+
     return next.handle(intReq);
   }
 }

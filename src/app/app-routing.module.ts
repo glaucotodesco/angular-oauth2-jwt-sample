@@ -5,12 +5,15 @@ import { AuthorizedComponent } from './components/authorized/authorized.componen
 import { UserComponent } from './components/user/user.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
+import { AuthGuard } from './auth.guard';
+import { AdminGuard } from './admin.guard';
 
 const routes: Routes = [
   {path: '', component: LoginComponent},
   {path: 'authorized', component: AuthorizedComponent},
-  {path: 'user', component: UserComponent},
-  {path: 'admin', component: AdminComponent},
+  {path: 'user', component: UserComponent, canActivate: [AuthGuard]},
+  {path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
+  {path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard]},
   {path: '**', redirectTo: '', pathMatch: 'full'}
 
 ];

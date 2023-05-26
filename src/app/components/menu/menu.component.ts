@@ -13,10 +13,17 @@ import { TokenService } from 'src/app/services/token.service';
 })
 export class MenuComponent {
  
-  constructor ( private authService: AuthService){}
+  constructor ( private authService: AuthService, private tokenService: TokenService){}
 
   onLogout(){
     this.authService.logout();
   }
 
+  isLogged():boolean {
+    return this.tokenService.isLogged();
+  }
+
+  isAdmin():boolean {
+    return this.tokenService.isAdmin();
+  }
 }

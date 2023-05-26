@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as crypto from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
 import { environment } from 'src/environments/environment';
 
 const ACCESS_TOKEN = 'access_token';

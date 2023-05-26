@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { TokenService } from 'src/app/services/token.service';
 
@@ -11,21 +11,24 @@ import { TokenService } from 'src/app/services/token.service';
 })
 export class AuthorizedComponent implements OnInit {
 
-  constructor(private activatedRoute: ActivatedRoute,   private authService: AuthService, private tokenService: TokenService){}
+  constructor(private activatedRoute: ActivatedRoute, private router: Router,  private authService: AuthService, private tokenService: TokenService){}
   
   
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe( data => {
-      this.getToken(data['code']);
+      const code_verifier = this.tokenService.getVerifier();
+      this.tokenService.deleteVerifier();
+      this.getToken(data['code'], code_verifier);
     })
   }
 
 
-  getToken(code: string): void {
-    this.authService.getToken(code).subscribe(
+  getToken(code: string, code_verifier: string): void {
+    this.authService.getToken(code, code_verifier).subscribe(
       {
         next: data => {
           this.tokenService.setTokens(data.access_token, data.refresh_token);
+          this.router.navigate(['/home']);
         }, 
         error: error => console.log(error)
       }
