@@ -12,6 +12,7 @@ import { ResourceInterceptor } from './interceptors/resources.interceptor';
 import { UserComponent } from './components/user/user.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
+import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 
 @NgModule({
   declarations: [
@@ -27,9 +28,14 @@ import { LoginComponent } from './components/login/login.component';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    HttpClientModule,
+    HttpClientModule
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: ResourceInterceptor, multi: true}],
+  providers: [
+     {provide: HTTP_INTERCEPTORS, useClass: ResourceInterceptor, multi: true},
+     { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+     JwtHelperService
+    
+    ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

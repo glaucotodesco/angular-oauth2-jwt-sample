@@ -4,11 +4,15 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TokenService } from './token.service';
 import * as CryptoJS from 'crypto-js';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Role } from '../models/role';
 
 
 const ACCESS_TOKEN = 'access_token';
 const CODE_VERIFIER = 'code_verifier';
-
+const USER_ID = 'user_id';
+const USER_NAME = 'user_name';
+const USER_REAL_NAME = 'user_real_name';
 
 
 @Injectable({
@@ -16,48 +20,69 @@ const CODE_VERIFIER = 'code_verifier';
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private tokenService: TokenService) { }
+  constructor(private http: HttpClient, private tokenService: TokenService, public jwtHelper: JwtHelperService) { }
 
-  public getToken(code: string): Observable<any> {
-    const body = this.createTokenBody(code);
-    const httpOptions = this.createTokenHttpOptions();
-    return this.http.post<any>(environment.token_url, body, httpOptions);
-  }
-
+  //New!
   public getAuthCode(): void {
     const httpParams = new HttpParams({ fromObject: this.createAuthCodeParams() });
     const codeUrl = environment.authorize_uri + httpParams.toString();
     location.href = encodeURI(codeUrl);
   }
 
+
+  //New!
+  public getToken(code: string): Observable<any> {
+    const body = this.createTokenBody(code);
+    const httpOptions = this.createTokenHttpOptions();
+    return this.http.post<any>(environment.token_url, body, httpOptions);
+  }
+
+
+  //OK!
   public logout(): void {
     this.tokenService.deleteTokens();
     location.href = encodeURI(environment.logout_url);
   }
 
+  //OK!
   public isLogged(): boolean {
     return localStorage.getItem(ACCESS_TOKEN) != null;
   }
 
-
+  //OK!
   public isAdmin(): boolean {
-    if (!this.isLogged()) {
-      return false;
+    return this.isAllowedByRole(['ROLE_ADMIN']);
+  }
+
+  //OK!
+  public getUserRealName(): string | null {
+    return localStorage.getItem(USER_REAL_NAME);
+  }
+
+  //OK!
+  public getUSerName(): string | null {
+    return localStorage.getItem(USER_NAME);
+  }
+
+  //OK!
+  public getUserId(): string | null {
+    return localStorage.getItem(USER_ID);
+  }
+
+  /*************** Private Methods *******************/
+  private isAllowedByRole(routeRoles: Role[] = []): boolean {
+
+    if (routeRoles.length === 0) {
+      return true;
     }
-    const token = this.tokenService.getAccessToken();
-    const payload = token?.split(".")[1] || "";
-    const payloadDecoded = atob(payload);
-    const values = JSON.parse(payloadDecoded);
-    const roles = values.roles;
-    if (roles.indexOf('ROLE_ADMIN') < 0) {
-      return false;
+    else {
+      const { roles = [] } = this.tokenService.getDecodedToken();
+      return routeRoles.some(role => roles?.includes(role));
     }
-    return true;
   }
 
 
-  
-  /*************** Private Methods *******************/
+
   private generateCodeVerifier(): string {
     const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 

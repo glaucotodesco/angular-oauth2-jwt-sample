@@ -10,10 +10,6 @@ export class LoginComponent implements OnInit{
 
   constructor (private authService: AuthService){}
   ngOnInit(): void {
-    this.startLoginFlow()
-  }
-
-  startLoginFlow(){
     this.authService.getAuthCode();
   }
 
